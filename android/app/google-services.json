@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "346662287423",
+    "project_id": "tummyfull-fbase",
+    "storage_bucket": "tummyfull-fbase.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:346662287423:android:049d424a7f27d39c65e08a",
+        "android_client_info": {
+          "package_name": "com.example.mealready"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCV6CULDLaLQNYOJLvALEqRPtFDcQrVbFQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
