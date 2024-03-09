@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:mealready/widgets/appBar.dart';
-import 'package:mealready/widgets/bottomNav.dart';
-import 'package:mealready/utils/appTheme.dart';
+import '../../widgets/appBar.dart';
+import '../../widgets/bottomNav.dart';
+import '../../utils/appTheme.dart';
+import 'profile.dart';
 
 class HomePage extends StatefulWidget {
   @override

@@ -1,10 +1,10 @@
 // import 'package:flutter/material.dart';
-// import 'package:mealready/screens/messages.dart';
-// import 'package:mealready/components/organism/menu.dart';
-// import 'package:mealready/screens/live.dart';
-// import 'package:mealready/screens/group.dart';
-// import 'package:mealready/screens/notifications.dart';
-// import 'package:mealready/screens/profile.dart';
+// import 'package:tummyfull/screens/messages.dart';
+// import 'package:tummyfull/components/organism/menu.dart';
+// import 'package:tummyfull/screens/live.dart';
+// import 'package:tummyfull/screens/group.dart';
+// import 'package:tummyfull/screens/notifications.dart';
+// import 'package:tummyfull/screens/profile.dart';
 
 // class AppBarFunctions {
 //   int selectedIndex = 0;

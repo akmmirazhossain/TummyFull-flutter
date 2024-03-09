@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PhoneVerificationForm extends StatefulWidget {
   @override
@@ -18,6 +19,18 @@ class _PhoneVerificationFormState extends State<PhoneVerificationForm> {
   bool _showResendLines = false;
   int _resendTimer = 10;
   late Timer _timer;
+
+  bool _validateOTP() {
+    if (_otpController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please enter OTP'),
+        ),
+      );
+      return false;
+    }
+    return true;
+  }
 
   @override
   void initState() {
@@ -207,8 +220,50 @@ class _PhoneVerificationFormState extends State<PhoneVerificationForm> {
 
   // ... Other existing code ...
 
-  void _verifyOTP() {
-    // Add logic for verifying OTP
+  void _verifyOTP() async {
+    if (_validateOTP()) {
+      final String otp = _otpController.text;
+      final String phoneNumber = _phoneNumberController.text;
+      final String apiUrl = 'http://192.168.0.216:8000/api/verify-otp';
+
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        body: {'phoneNumber': phoneNumber, 'otp': otp},
+      );
+
+      if (response.statusCode == 200) {
+        // Parse the JSON response
+        final jsonResponse = jsonDecode(response.body);
+
+        // Extract data from the JSON response
+        final status = jsonResponse['status'];
+        final message = jsonResponse['message'];
+
+        // Print the response data
+        print('Status: $status');
+        print('Message: $message');
+
+        if (status == 'success') {
+          // Set shared preference to indicate user is logged in
+          await _setLoggedIn(true);
+          print('User logged in successfully');
+
+          // Redirect to the HomeScreen
+          Navigator.of(context).pushReplacementNamed('/screens/home');
+        } else {
+          print('Failed to log in');
+          // Handle failed login (e.g., display error message)
+        }
+      } else {
+        // Handle HTTP error response
+        print('HTTP error: ${response.statusCode}');
+      }
+    }
+  }
+
+  Future<void> _setLoggedIn(bool isLoggedIn) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isLoggedIn', isLoggedIn);
   }
 }
 

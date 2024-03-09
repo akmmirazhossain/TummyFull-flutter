@@ -1,8 +1,8 @@
 // import 'dart:async';
 // import 'package:flutter/material.dart';
 // import 'package:intl/intl.dart';
-// import 'package:mealready/utils/appTheme.dart';
-// import 'package:mealready/screens/orderPlace.dart';
+// import 'package:tummyfull/utils/appTheme.dart';
+// import 'package:tummyfull/screens/orderPlace.dart';
 
 // class MenuComp extends StatefulWidget {
 //   @override

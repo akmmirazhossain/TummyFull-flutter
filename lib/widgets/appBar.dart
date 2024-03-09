@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:mealready/screens/messages.dart';
-import 'package:mealready/components/organism/home_menu.dart';
-import 'package:mealready/screens/live.dart';
-import 'package:mealready/screens/group.dart';
-import 'package:mealready/screens/notifications.dart';
-import 'package:mealready/screens/profile.dart';
+import '../../screens/messages.dart';
+import '../../components/organism/home_menu.dart';
+import '../../screens/live.dart';
+import '../../screens/group.dart';
+import '../../screens/notifications.dart';
+import '../../screens/profile.dart';
 
 class ContentChangerClass {
   int selectedIndex = 0;

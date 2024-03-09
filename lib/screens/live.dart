@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:mealready/utils/appTheme.dart';
-import 'package:mealready/screens/orderPlace.dart';
+import '../../utils/appTheme.dart';
+import '../../screens/orderPlace.dart';
 import 'dart:async';
 
 void main() {

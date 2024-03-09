@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mealready/widgets/bottomNav.dart';
-import 'package:mealready/widgets/appBar.dart';
+import '../../widgets/bottomNav.dart';
+import '../../widgets/appBar.dart';
 
 class OrderPlace extends StatefulWidget {
   final String dataToSend;

@@ -1,9 +1,9 @@
 // main.dart
 
 import 'package:flutter/material.dart';
-import 'package:mealready/utils/appTheme.dart';
-import 'package:mealready/widgets/stepperMain.dart';
-import 'package:mealready/screens/home.dart';
+import '../../utils/appTheme.dart';
+import '../../widgets/stepperMain.dart';
+import '../../screens/home.dart';
 
 void main() {
   runApp(MyApp());
@@ -15,6 +15,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       routes: {
         '/screens/home': (context) => HomePage(),
+        '/screens/login': (context) => Login(),
         // ... other routes
       },
       title: 'TummyFull',

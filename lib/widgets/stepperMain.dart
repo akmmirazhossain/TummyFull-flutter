@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mealready/utils/appTheme.dart';
+import '../../utils/appTheme.dart';
 
 class MyStepperWidget extends StatefulWidget {
   @override

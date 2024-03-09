@@ -1,4 +1,4 @@
-package com.example.mealready
+package com.example.tummyfull
 
 import io.flutter.embedding.android.FlutterActivity
 
