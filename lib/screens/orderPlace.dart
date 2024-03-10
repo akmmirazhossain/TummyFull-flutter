@@ -32,7 +32,7 @@ class _OrderPlaceState extends State<OrderPlace> {
       key: _scaffoldKey,
       appBar: AppBarMain(
         contentChangerInst: ContentChangerState,
-        title: " ORDPLACE",
+        title: "ORDPLACE",
       ),
       body: Column(
         children: [
@@ -62,15 +62,52 @@ class _OrderPlaceState extends State<OrderPlace> {
           ),
         ],
       ),
-      bottomNavigationBar:
-          BottomNav(onTabTapped: ContentChangerState.onItemTapped),
+      bottomNavigationBar: BottomNav(
+        onTabTapped: _onItemTapped,
+      ),
     );
   }
 
-  void onItemTapped(int index) {
+  void _onItemTapped(int index) {
     setState(() {
       selectedIndex = index;
-      // Handle navigation or content change based on the selected index
+      // Navigate to the corresponding screen based on the selected index
+      switch (selectedIndex) {
+        case 0:
+          // Navigate to Menu screen
+          // Replace 'MenuScreen()' with your actual menu screen class
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => MenuScreen()),
+          );
+          break;
+        case 1:
+          // Navigate to My Orders screen
+          // Replace 'MyOrdersScreen()' with your actual my orders screen class
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => MyOrdersScreen()),
+          );
+          break;
+        case 2:
+          // Navigate to Notifications screen
+          // Replace 'NotificationsScreen()' with your actual notifications screen class
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => NotificationsScreen()),
+          );
+          break;
+        case 3:
+          // Navigate to Profile screen
+          // Replace 'ProfileScreen()' with your actual profile screen class
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => ProfileScreen()),
+          );
+          break;
+        default:
+          break;
+      }
     });
   }
 }

@@ -18,15 +18,11 @@ class _BottomNavState extends State<BottomNav> {
       items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
           icon: Icon(Icons.home),
-          label: 'Home',
+          label: 'MenuBN',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.live_tv),
-          label: 'Live',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.group),
-          label: 'My Group',
+          icon: Icon(Icons.list),
+          label: 'My Orders',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.notifications),

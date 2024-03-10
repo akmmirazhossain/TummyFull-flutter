@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../widgets/appBar.dart';
 import '../../widgets/bottomNav.dart';
 import '../../utils/appTheme.dart';
-import 'profile.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -11,34 +10,55 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  late ContentChangerClass ContentChangerState;
+  late ContentChangerClass _contentChangerState;
+  late String _appBarTitle;
 
   @override
   void initState() {
     super.initState();
-    ContentChangerState = ContentChangerClass(onStateChangeCallback: () {
+    _contentChangerState = ContentChangerClass(onStateChangeCallback: () {
       setState(() {
         // Empty setState callback, just to trigger a rebuild
       });
     });
+    _appBarTitle = 'Menu Initial title'; // Set initial title
   }
 
   @override
   Widget build(BuildContext context) {
-    // Set your default title or get it from some variable
-
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBarMain(
-        contentChangerInst: ContentChangerState,
-        title: "Home",
+        contentChangerInst: _contentChangerState,
+        title: _appBarTitle,
       ),
       body: Container(
         color: background,
-        child: ContentChangerState.buildCurrentContent(),
+        child: _contentChangerState.buildCurrentContent(),
       ),
-      bottomNavigationBar:
-          BottomNav(onTabTapped: ContentChangerState.onItemTapped),
+      bottomNavigationBar: BottomNav(
+        onTabTapped: (index) {
+          setState(() {
+            _contentChangerState.onItemTapped(index);
+            _appBarTitle = getAppBarTitle(index);
+          });
+        },
+      ),
     );
+  }
+
+  String getAppBarTitle(int index) {
+    switch (index) {
+      case 0:
+        return 'MenAppBar';
+      case 1:
+        return 'My Orders';
+      case 2:
+        return 'Notifications';
+      case 3:
+        return 'Profile';
+      default:
+        return 'Home';
+    }
   }
 }

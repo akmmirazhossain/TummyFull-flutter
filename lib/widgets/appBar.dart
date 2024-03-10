@@ -37,15 +37,12 @@ class ContentChangerClass {
         currentContent = MenuComp();
         break;
       case 1:
-        currentContent = MyHomePage();
-        break;
-      case 2:
-        currentContent = MyGroupComponent();
-        break;
-      case 3:
         currentContent = NotificationsComponent();
         break;
-      case 4:
+      case 2:
+        currentContent = NotificationsComponent();
+        break;
+      case 3:
         currentContent = ProfileComponent();
         break;
     }

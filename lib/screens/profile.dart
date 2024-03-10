@@ -14,7 +14,7 @@ class ProfileComponent extends StatelessWidget {
           ElevatedButton(
             onPressed: () {
               Navigator.pushNamed(
-                  context, '/login'); // Navigate to the login screen
+                  context, '/screens/login'); // Navigate to the login screen
             },
             child: Text('Login'),
           ),
