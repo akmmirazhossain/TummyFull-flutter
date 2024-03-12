@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import '../../utils/content_changer.dart';
+
 import '../../widgets/bottomNav.dart';
 import '../../widgets/appBar.dart';
+import '../../components/organism/home_menu.dart'; // Assuming this is your menu component
 
 class OrderPlace extends StatefulWidget {
   final String dataToSend;
@@ -12,18 +15,19 @@ class OrderPlace extends StatefulWidget {
 }
 
 class _OrderPlaceState extends State<OrderPlace> {
-  int selectedIndex = 0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  late ContentChangerClass ContentChangerState;
+  late ContentChangerClass contentChangerState;
+  late String appBarTitle;
 
   @override
   void initState() {
     super.initState();
-    ContentChangerState = ContentChangerClass(onStateChangeCallback: () {
+    contentChangerState = ContentChangerClass(onStateChangeCallback: () {
       setState(() {
         // Empty setState callback, just to trigger a rebuild
       });
     });
+    appBarTitle = 'ORDPLACE'; // Set initial title
   }
 
   @override
@@ -31,8 +35,8 @@ class _OrderPlaceState extends State<OrderPlace> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBarMain(
-        contentChangerInst: ContentChangerState,
-        title: "ORDPLACE",
+        // contentChangerInst: contentChangerState,
+        title: "Place Order",
       ),
       body: Column(
         children: [
@@ -41,7 +45,7 @@ class _OrderPlaceState extends State<OrderPlace> {
             child: Padding(
               padding: EdgeInsets.all(16.0),
               child: Text(
-                "Ordering Tomorrow's Lunch", // Add your title here
+                "Ordering Tomorrow's Lunch",
                 style: TextStyle(
                   fontSize: 20.0,
                   fontWeight: FontWeight.bold,
@@ -60,54 +64,16 @@ class _OrderPlaceState extends State<OrderPlace> {
               ),
             ),
           ),
+          SizedBox(height: 20), // Add spacing between the column and the button
+          ElevatedButton(
+            onPressed: () {
+              // Navigate back to home screen
+              Navigator.pushNamed(context, '/screens/home');
+            },
+            child: Text('Back to Home'),
+          ),
         ],
       ),
-      bottomNavigationBar: BottomNav(
-        onTabTapped: _onItemTapped,
-      ),
     );
-  }
-
-  void _onItemTapped(int index) {
-    setState(() {
-      selectedIndex = index;
-      // Navigate to the corresponding screen based on the selected index
-      switch (selectedIndex) {
-        case 0:
-          // Navigate to Menu screen
-          // Replace 'MenuScreen()' with your actual menu screen class
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => MenuScreen()),
-          );
-          break;
-        case 1:
-          // Navigate to My Orders screen
-          // Replace 'MyOrdersScreen()' with your actual my orders screen class
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => MyOrdersScreen()),
-          );
-          break;
-        case 2:
-          // Navigate to Notifications screen
-          // Replace 'NotificationsScreen()' with your actual notifications screen class
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => NotificationsScreen()),
-          );
-          break;
-        case 3:
-          // Navigate to Profile screen
-          // Replace 'ProfileScreen()' with your actual profile screen class
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => ProfileScreen()),
-          );
-          break;
-        default:
-          break;
-      }
-    });
   }
 }

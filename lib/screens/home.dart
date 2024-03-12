@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../widgets/appBar.dart';
+// import '../../widgets/appBar.dart';
 import '../../widgets/bottomNav.dart';
 import '../../utils/appTheme.dart';
+import '../../utils/content_changer.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -28,10 +29,10 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      appBar: AppBarMain(
-        contentChangerInst: _contentChangerState,
-        title: _appBarTitle,
-      ),
+      // appBar: AppBarMain(
+      //   contentChangerInst: _contentChangerState,
+      //   title: _appBarTitle,
+      // ),
       body: Container(
         color: background,
         child: _contentChangerState.buildCurrentContent(),
@@ -40,25 +41,9 @@ class _HomePageState extends State<HomePage> {
         onTabTapped: (index) {
           setState(() {
             _contentChangerState.onItemTapped(index);
-            _appBarTitle = getAppBarTitle(index);
           });
         },
       ),
     );
-  }
-
-  String getAppBarTitle(int index) {
-    switch (index) {
-      case 0:
-        return 'MenAppBar';
-      case 1:
-        return 'My Orders';
-      case 2:
-        return 'Notifications';
-      case 3:
-        return 'Profile';
-      default:
-        return 'Home';
-    }
   }
 }
