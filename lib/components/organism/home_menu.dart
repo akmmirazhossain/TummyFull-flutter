@@ -2,25 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../../utils/appTheme.dart';
-import '../../screens/orderPlace.dart';
+import '../../screens/OrderPlace.dart';
 import 'dart:async';
-
-// void main() {
-//   runApp(MyApp());
-// }
-
-// class MyApp extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       title: 'JSON Flutter App',
-//       theme: ThemeData(
-//         primarySwatch: Colors.blue,
-//       ),
-//       home: MenuComp(),
-//     );
-//   }
-// }
 
 class MenuComp extends StatefulWidget {
   @override
@@ -275,7 +258,14 @@ class _MenuCompState extends State<MenuComp> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => OrderPlace(
-                                        dataToSend: selectedMenuId.toString()),
+                                      dataToSend: selectedMenuId.toString(),
+                                      menuOf: data[day]['menu_of'],
+                                      date: formatDate(data[day]['date']),
+                                      mealType: mealType,
+                                      day: day.substring(0, 1).toUpperCase() +
+                                          day.substring(1) +
+                                          '',
+                                    ),
                                   ),
                                 );
                               }

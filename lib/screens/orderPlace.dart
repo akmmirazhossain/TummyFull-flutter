@@ -1,78 +1,151 @@
 import 'package:flutter/material.dart';
-import '../../utils/content_changer.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
-import '../../widgets/bottomNav.dart';
 import '../../widgets/appBar.dart';
-import '../../components/organism/home_menu.dart'; // Assuming this is your menu component
 
 class OrderPlace extends StatefulWidget {
   final String dataToSend;
+  final String menuOf;
+  final String date;
+  final String mealType;
+  final String day;
 
-  const OrderPlace({Key? key, required this.dataToSend}) : super(key: key);
+  const OrderPlace({
+    Key? key,
+    required this.dataToSend,
+    required this.menuOf,
+    required this.date,
+    required this.mealType,
+    required this.day,
+  }) : super(key: key);
 
   @override
   _OrderPlaceState createState() => _OrderPlaceState();
 }
 
 class _OrderPlaceState extends State<OrderPlace> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  late ContentChangerClass contentChangerState;
-  late String appBarTitle;
+  late Future<Map<String, dynamic>> _menuData;
+  late Future<Map<String, dynamic>> _settingData;
 
   @override
   void initState() {
     super.initState();
-    contentChangerState = ContentChangerClass(onStateChangeCallback: () {
-      setState(() {
-        // Empty setState callback, just to trigger a rebuild
-      });
-    });
-    appBarTitle = 'ORDPLACE'; // Set initial title
+    _menuData = fetchMenuData(int.parse(widget.dataToSend));
+    _settingData = fetchSettingData();
+  }
+
+  Future<Map<String, dynamic>> fetchMenuData(int menuId) async {
+    final response =
+        await http.get(Uri.parse('http://192.168.0.216:8000/api/menu/$menuId'));
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Failed to load menu data');
+    }
+  }
+
+  Future<Map<String, dynamic>> fetchSettingData() async {
+    final response =
+        await http.get(Uri.parse('http://192.168.0.216:8000/api/setting'));
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Failed to load setting data');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
-      appBar: AppBarMain(
-        // contentChangerInst: contentChangerState,
-        title: "Place Order",
-      ),
-      body: Column(
-        children: [
-          const Align(
-            alignment: Alignment.topLeft,
-            child: Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text(
-                "Ordering Tomorrow's Lunch",
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
+      appBar: AppBarMain(title: "Place Order"),
+      body: FutureBuilder(
+        future: Future.wait([_menuData, _settingData]),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else {
+            final menuData = snapshot.data![0] as Map<String, dynamic>;
+            final settingData = snapshot.data![1] as Map<String, dynamic>;
+
+            List<dynamic> menuItems = [];
+
+            if (widget.mealType == 'Lunch') {
+              menuItems = menuData['lunch'] as List<dynamic>;
+            } else if (widget.mealType == 'Dinner') {
+              menuItems = menuData['dinner'] as List<dynamic>;
+            }
+
+            final deliveryCharge = settingData['delivery_charge'] ?? 'N/A';
+
+            return Column(
+              children: [
+                Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    "${widget.menuOf} (${widget.day}, ${widget.date}) (${widget.mealType})",
+                    style: TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Order Data: ${widget.dataToSend}'),
-                  // Add specific content for OrderPlace if needed
-                ],
-              ),
-            ),
-          ),
-          SizedBox(height: 20), // Add spacing between the column and the button
-          ElevatedButton(
-            onPressed: () {
-              // Navigate back to home screen
-              Navigator.pushNamed(context, '/screens/home');
-            },
-            child: Text('Back to Home'),
-          ),
-        ],
+                Container(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: List.generate(menuItems.length, (index) {
+                      final item = menuItems[index];
+                      return Expanded(
+                        child: Column(
+                          children: [
+                            Image.network(
+                              'http://192.168.0.216:8000/assets/images/${item['food_image']}',
+                              height: 100,
+                              width: 100,
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              item['food_name'],
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 16),
+                          ],
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+                Text(
+                  'Delivery Charge: $deliveryCharge',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Price: ${widget.mealType == 'Lunch' ? menuData['menu_price_lunch'] : menuData['menu_price_dinner']}',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/screens/home');
+                  },
+                  child: Text('Back to Home'),
+                ),
+              ],
+            );
+          }
+        },
       ),
     );
   }
