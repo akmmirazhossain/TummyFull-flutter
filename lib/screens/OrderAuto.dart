@@ -12,6 +12,9 @@ class _DayListState extends State<DayList> {
   int orderMaxDays = 0;
   String serverDateStr = '';
 
+  Map<String, bool> lunchCheckboxes = {};
+  Map<String, bool> dinnerCheckboxes = {};
+
   Future<void> fetchData() async {
     final response =
         await http.get(Uri.parse('http://192.168.0.216:8000/api/setting'));
@@ -20,10 +23,22 @@ class _DayListState extends State<DayList> {
       setState(() {
         orderMaxDays = data['order_max_days'];
         serverDateStr = data['server_date'];
+
+        // Initialize checkboxes after fetching data
+        _initializeCheckboxes();
       });
     } else {
       throw Exception('Failed to load data');
     }
+  }
+
+  void _initializeCheckboxes() {
+    List<Map<String, dynamic>> dateList = _generateDateList();
+    dateList.forEach((entry) {
+      String date = entry['days'][0]['date'];
+      lunchCheckboxes[date] = false;
+      dinnerCheckboxes[date] = false;
+    });
   }
 
   @override
@@ -71,12 +86,52 @@ class _DayListState extends State<DayList> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Lunch (Quantity - 1 +)',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold)),
-                                Text('Dinner (Quantity - 1 +)',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold)),
+                                Row(
+                                  children: [
+                                    Checkbox(
+                                      value:
+                                          lunchCheckboxes[dayEntry['date']] ??
+                                              false,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          print(
+                                              'Lunch checkbox ${value! ? 'checked' : 'unchecked'}');
+                                          lunchCheckboxes[dayEntry['date']] =
+                                              value!;
+                                          if (!value!) {
+                                            print('Lunch checkbox unchecked');
+                                          }
+                                        });
+                                      },
+                                    ),
+                                    Text('Lunch (Quantity - 1 +)',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold)),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Checkbox(
+                                      value:
+                                          dinnerCheckboxes[dayEntry['date']] ??
+                                              false,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          print(
+                                              'Dinner checkbox ${value! ? 'checked' : 'unchecked'}');
+                                          dinnerCheckboxes[dayEntry['date']] =
+                                              value!;
+                                          if (!value!) {
+                                            print('Dinner checkbox unchecked');
+                                          }
+                                        });
+                                      },
+                                    ),
+                                    Text('Dinner (Quantity - 1 +)',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold)),
+                                  ],
+                                ),
                               ],
                             ),
                           ),
