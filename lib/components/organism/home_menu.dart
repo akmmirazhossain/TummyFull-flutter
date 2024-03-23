@@ -258,7 +258,7 @@ class _MenuCompState extends State<MenuComp> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => OrderPlace(
-                                      dataToSend: selectedMenuId.toString(),
+                                      mealId: selectedMenuId,
                                       menuOf: data[day]['menu_of'],
                                       date: formatDate(data[day]['date']),
                                       mealType: mealType,

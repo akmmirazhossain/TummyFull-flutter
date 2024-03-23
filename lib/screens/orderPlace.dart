@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import '../../widgets/appBar.dart';
 
 class OrderPlace extends StatefulWidget {
-  final String dataToSend;
+  final int mealId;
   final String menuOf;
   final String date;
   final String mealType;
@@ -13,7 +13,7 @@ class OrderPlace extends StatefulWidget {
 
   const OrderPlace({
     Key? key,
-    required this.dataToSend,
+    required this.mealId,
     required this.menuOf,
     required this.date,
     required this.mealType,
@@ -31,7 +31,7 @@ class _OrderPlaceState extends State<OrderPlace> {
   @override
   void initState() {
     super.initState();
-    _menuData = fetchMenuData(int.parse(widget.dataToSend));
+    _menuData = fetchMenuData(widget.mealId);
     _settingData = fetchSettingData();
   }
 
@@ -70,15 +70,14 @@ class _OrderPlaceState extends State<OrderPlace> {
             final menuData = snapshot.data![0] as Map<String, dynamic>;
             final settingData = snapshot.data![1] as Map<String, dynamic>;
 
-            List<dynamic> menuItems = [];
+            final deliveryCharge = settingData['delivery_charge'] ?? 'N/A';
 
+            List<dynamic> menuItems = [];
             if (widget.mealType == 'Lunch') {
               menuItems = menuData['lunch'] as List<dynamic>;
             } else if (widget.mealType == 'Dinner') {
               menuItems = menuData['dinner'] as List<dynamic>;
             }
-
-            final deliveryCharge = settingData['delivery_charge'] ?? 'N/A';
 
             return Column(
               children: [
@@ -141,6 +140,13 @@ class _OrderPlaceState extends State<OrderPlace> {
                     Navigator.pushNamed(context, '/screens/home');
                   },
                   child: Text('Back to Home'),
+                ),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/screens/orderauto');
+                  },
+                  child: Text('Proceed'),
                 ),
               ],
             );
