@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import '../../widgets/appBar.dart';
 
 class OrderPlace extends StatefulWidget {
-  final int mealId;
+  final int menuId;
   final String menuOf;
   final String date;
   final String mealType;
@@ -13,7 +13,7 @@ class OrderPlace extends StatefulWidget {
 
   const OrderPlace({
     Key? key,
-    required this.mealId,
+    required this.menuId,
     required this.menuOf,
     required this.date,
     required this.mealType,
@@ -31,7 +31,7 @@ class _OrderPlaceState extends State<OrderPlace> {
   @override
   void initState() {
     super.initState();
-    _menuData = fetchMenuData(widget.mealId);
+    _menuData = fetchMenuData(widget.menuId);
     _settingData = fetchSettingData();
   }
 
@@ -144,7 +144,14 @@ class _OrderPlaceState extends State<OrderPlace> {
                 SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, '/screens/orderauto');
+                    Navigator.pushNamed(
+                      context,
+                      '/screens/orderauto',
+                      arguments: {
+                        'menuId': widget.menuId,
+                        'date': widget.date,
+                      },
+                    );
                   },
                   child: Text('Proceed'),
                 ),

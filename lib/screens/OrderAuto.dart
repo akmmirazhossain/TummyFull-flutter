@@ -3,17 +3,21 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-class DayList extends StatefulWidget {
+class OrderAuto extends StatefulWidget {
   @override
-  _DayListState createState() => _DayListState();
+  _OrderAutoState createState() => _OrderAutoState();
 }
 
-class _DayListState extends State<DayList> {
+class _OrderAutoState extends State<OrderAuto> {
   int orderMaxDays = 0;
   String serverDateStr = '';
 
   Map<String, bool> lunchCheckboxes = {};
   Map<String, bool> dinnerCheckboxes = {};
+  Map<String, int> lunchQuantities = {};
+  Map<String, int> dinnerQuantities = {};
+  int quantityMin = 1;
+  int quantityMax = 9;
 
   Future<void> fetchData() async {
     final response =
@@ -23,12 +27,41 @@ class _DayListState extends State<DayList> {
       setState(() {
         orderMaxDays = data['order_max_days'];
         serverDateStr = data['server_date'];
+        quantityMin = data['quantity_min'];
+        quantityMax = data['quantity_max'];
 
-        // Initialize checkboxes after fetching data
+        // Initialize checkboxes and quantities after fetching data
         _initializeCheckboxes();
       });
     } else {
       throw Exception('Failed to load data');
+    }
+  }
+
+  Future<void> fetchMealTypeAndMarkCheckboxes() async {
+    final args =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    final menuId = args['menuId'];
+    final date = args['date'];
+
+    final mealTypeResponse =
+        await http.get(Uri.parse('http://192.168.0.216:8000/api/menu/$menuId'));
+    if (mealTypeResponse.statusCode == 200) {
+      Map<String, dynamic> mealTypeData = jsonDecode(mealTypeResponse.body);
+      String mealType = mealTypeData['meal_type'];
+
+      // Pre-mark checkboxes based on the meal type and date
+      if (mealType == 'lunch') {
+        setState(() {
+          lunchCheckboxes[date] = true;
+        });
+      } else if (mealType == 'dinner') {
+        setState(() {
+          dinnerCheckboxes[date] = true;
+        });
+      }
+    } else {
+      throw Exception('Failed to load meal type data');
     }
   }
 
@@ -38,6 +71,8 @@ class _DayListState extends State<DayList> {
       String date = entry['days'][0]['date'];
       lunchCheckboxes[date] = false;
       dinnerCheckboxes[date] = false;
+      lunchQuantities[date] = quantityMin;
+      dinnerQuantities[date] = quantityMin;
     });
   }
 
@@ -45,6 +80,12 @@ class _DayListState extends State<DayList> {
   void initState() {
     super.initState();
     fetchData();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    fetchMealTypeAndMarkCheckboxes();
   }
 
   @override
@@ -104,9 +145,10 @@ class _DayListState extends State<DayList> {
                                         });
                                       },
                                     ),
-                                    Text('Lunch (Quantity - 1 +)',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold)),
+                                    Text('Lunch'),
+                                    SizedBox(width: 16),
+                                    _buildQuantityCounter(
+                                        'lunch', dayEntry['date']!),
                                   ],
                                 ),
                                 Row(
@@ -127,9 +169,10 @@ class _DayListState extends State<DayList> {
                                         });
                                       },
                                     ),
-                                    Text('Dinner (Quantity - 1 +)',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold)),
+                                    Text('Dinner'),
+                                    SizedBox(width: 16),
+                                    _buildQuantityCounter(
+                                        'dinner', dayEntry['date']!),
                                   ],
                                 ),
                               ],
@@ -142,6 +185,45 @@ class _DayListState extends State<DayList> {
                 );
               },
             ),
+    );
+  }
+
+  Widget _buildQuantityCounter(String mealType, String date) {
+    int currentQuantity = mealType == 'lunch'
+        ? lunchQuantities[date] ?? quantityMin
+        : dinnerQuantities[date] ?? quantityMin;
+    return Row(
+      children: [
+        IconButton(
+          icon: Icon(Icons.remove),
+          onPressed: () {
+            setState(() {
+              if (currentQuantity > quantityMin) {
+                if (mealType == 'lunch') {
+                  lunchQuantities[date] = currentQuantity - 1;
+                } else {
+                  dinnerQuantities[date] = currentQuantity - 1;
+                }
+              }
+            });
+          },
+        ),
+        Text('Quantity: $currentQuantity'),
+        IconButton(
+          icon: Icon(Icons.add),
+          onPressed: () {
+            setState(() {
+              if (currentQuantity < quantityMax) {
+                if (mealType == 'lunch') {
+                  lunchQuantities[date] = currentQuantity + 1;
+                } else {
+                  dinnerQuantities[date] = currentQuantity + 1;
+                }
+              }
+            });
+          },
+        ),
+      ],
     );
   }
 
@@ -188,6 +270,6 @@ class _DayListState extends State<DayList> {
 
 void main() {
   runApp(MaterialApp(
-    home: DayList(),
+    home: OrderAuto(),
   ));
 }

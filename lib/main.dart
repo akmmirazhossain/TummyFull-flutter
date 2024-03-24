@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/screens/home': (context) => HomePage(),
         '/screens/login': (context) => Login(),
-        //'/screens/orderauto': (context) => OrderAuto(),
+        '/screens/orderauto': (context) => OrderAuto(),
         // ... other routes
       },
       title: 'TummyFull',
