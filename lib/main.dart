@@ -34,7 +34,8 @@ class MyHomePage extends StatelessWidget {
     return Scaffold(
       //appBar: MainAppBar(),
       body: Center(
-        child: MyStepperWidget(), // Display the horizontal stepper directly
+        //MyStepperWidget(),
+        child: HomePage(), // Display the horizontal stepper directly
       ),
     );
   }

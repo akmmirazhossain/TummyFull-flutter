@@ -1,0 +1,17 @@
+// Checkbox(
+//   value: lunchCheckboxes[dayEntry['date']] ?? false,
+//   onChanged: (isLunchCheckboxEnabled &&
+//               timeLimitLunch24h.compareTo(serverTime24h) < 0 &&
+//               _isToday(serverDateStr) &&
+//               _isFirstDate(_generateDateList()[0]['days'][0]['date']))
+//       ? (value) {
+//           setState(() {
+//             print('Lunch checkbox for ${dayEntry['date']} ${value! ? 'checked' : 'unchecked'}');
+//             lunchCheckboxes[dayEntry['date']] = value!;
+//             if (!value!) {
+//               print('Lunch checkbox for ${dayEntry['date']} unchecked');
+//             }
+//           });
+//         }
+//       : null, // Pass null onChanged to disable checkbox
+// ),

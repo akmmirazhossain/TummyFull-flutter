@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 class OrderAuto extends StatefulWidget {
   @override
@@ -9,72 +9,11 @@ class OrderAuto extends StatefulWidget {
 }
 
 class _OrderAutoState extends State<OrderAuto> {
-  int orderMaxDays = 0;
-  String serverDateStr = '';
+  List<dynamic> menuData = [];
+  Map<String, bool> lunchCheckState = {};
+  Map<String, bool> dinnerCheckState = {};
 
-  Map<String, bool> lunchCheckboxes = {};
-  Map<String, bool> dinnerCheckboxes = {};
-  Map<String, int> lunchQuantities = {};
-  Map<String, int> dinnerQuantities = {};
-  int quantityMin = 1;
-  int quantityMax = 9;
-
-  Future<void> fetchData() async {
-    final response =
-        await http.get(Uri.parse('http://192.168.0.216:8000/api/setting'));
-    if (response.statusCode == 200) {
-      Map<String, dynamic> data = jsonDecode(response.body);
-      setState(() {
-        orderMaxDays = data['order_max_days'];
-        serverDateStr = data['server_date'];
-        quantityMin = data['quantity_min'];
-        quantityMax = data['quantity_max'];
-
-        // Initialize checkboxes and quantities after fetching data
-        _initializeCheckboxes();
-      });
-    } else {
-      throw Exception('Failed to load data');
-    }
-  }
-
-  Future<void> fetchMealTypeAndMarkCheckboxes() async {
-    final args =
-        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-    final menuId = args['menuId'];
-    final date = args['date'];
-
-    final mealTypeResponse =
-        await http.get(Uri.parse('http://192.168.0.216:8000/api/menu/$menuId'));
-    if (mealTypeResponse.statusCode == 200) {
-      Map<String, dynamic> mealTypeData = jsonDecode(mealTypeResponse.body);
-      String mealType = mealTypeData['meal_type'];
-
-      // Pre-mark checkboxes based on the meal type and date
-      if (mealType == 'lunch') {
-        setState(() {
-          lunchCheckboxes[date] = true;
-        });
-      } else if (mealType == 'dinner') {
-        setState(() {
-          dinnerCheckboxes[date] = true;
-        });
-      }
-    } else {
-      throw Exception('Failed to load meal type data');
-    }
-  }
-
-  void _initializeCheckboxes() {
-    List<Map<String, dynamic>> dateList = _generateDateList();
-    dateList.forEach((entry) {
-      String date = entry['days'][0]['date'];
-      lunchCheckboxes[date] = false;
-      dinnerCheckboxes[date] = false;
-      lunchQuantities[date] = quantityMin;
-      dinnerQuantities[date] = quantityMin;
-    });
-  }
+  String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
 
   @override
   void initState() {
@@ -82,194 +21,177 @@ class _OrderAutoState extends State<OrderAuto> {
     fetchData();
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    fetchMealTypeAndMarkCheckboxes();
+  Future<void> fetchData() async {
+    final String apiUrl = 'http://192.168.0.216:8000/api/orderauto';
+
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
+      if (response.statusCode == 200) {
+        setState(() {
+          final Map<String, dynamic> data = json.decode(response.body);
+          data.forEach((date, details) {
+            menuData.add({
+              'date': date,
+              'day': details['day'],
+              'lunch': details['lunch']['items'],
+              'dinner': details['dinner']['items'],
+            });
+            // Initialize checkbox state for each menu item
+            lunchCheckState[date] = false;
+            dinnerCheckState[date] = false;
+          });
+        });
+      } else {
+        print('Failed to fetch data. Error: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error fetching data: $error');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Retrieve arguments passed to this page
+    final Map<String, dynamic>? args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
+    // Print the arguments
+    if (args != null) {
+      print('Arguments: $args');
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Scheduled Meals'),
+        title: Text('Meal Menu'),
       ),
-      body: orderMaxDays == 0 || serverDateStr.isEmpty
-          ? Center(
-              child: CircularProgressIndicator(),
-            )
-          : ListView.builder(
-              itemCount: _generateDateList().length,
-              itemBuilder: (context, index) {
-                final entry = _generateDateList()[index];
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+      body: ListView.builder(
+        itemCount: menuData.length,
+        itemBuilder: (context, index) {
+          //print(menuData[index]['lunch']['menu_price_lunch'].toString());
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: EdgeInsets.symmetric(
+                    vertical: 4), // Adjust vertical spacing here
+                child: ListTile(
+                  title: Text(
+                    '${menuData[index]['day'][0].toUpperCase()}${menuData[index]['day'].substring(1)}, ${menuData[index]['date']}',
+                    style: TextStyle(fontSize: 16), // Set smaller font size
+                  ),
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 16,
+                  ),
+                ),
+              ),
+
+              ListTile(
+                dense: true, // Reduce vertical space
+                contentPadding: EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    bottom: 0), // Decrease vertical padding
+                title: Row(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        entry['month']!,
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
+                    Checkbox(
+                      value: lunchCheckState[menuData[index]['date']] ?? false,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          lunchCheckState[menuData[index]['date']] = value!;
+                        });
+                      },
                     ),
-                    for (var dayEntry in entry['days']!)
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ListTile(
-                            title: Text(dayEntry['date']!,
-                                style: TextStyle(fontWeight: FontWeight.bold)),
-                          ),
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Checkbox(
-                                      value:
-                                          lunchCheckboxes[dayEntry['date']] ??
-                                              false,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          print(
-                                              'Lunch checkbox ${value! ? 'checked' : 'unchecked'}');
-                                          lunchCheckboxes[dayEntry['date']] =
-                                              value!;
-                                          if (!value!) {
-                                            print('Lunch checkbox unchecked');
-                                          }
-                                        });
-                                      },
-                                    ),
-                                    Text('Lunch'),
-                                    SizedBox(width: 16),
-                                    _buildQuantityCounter(
-                                        'lunch', dayEntry['date']!),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Checkbox(
-                                      value:
-                                          dinnerCheckboxes[dayEntry['date']] ??
-                                              false,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          print(
-                                              'Dinner checkbox ${value! ? 'checked' : 'unchecked'}');
-                                          dinnerCheckboxes[dayEntry['date']] =
-                                              value!;
-                                          if (!value!) {
-                                            print('Dinner checkbox unchecked');
-                                          }
-                                        });
-                                      },
-                                    ),
-                                    Text('Dinner'),
-                                    SizedBox(width: 16),
-                                    _buildQuantityCounter(
-                                        'dinner', dayEntry['date']!),
-                                  ],
-                                ),
-                              ],
+                    SizedBox(width: 4), // Decrease horizontal space
+                    Text(
+                      'Lunch:',
+                      style: TextStyle(fontSize: 14), // Set smaller font size
+                    ),
+                  ],
+                ),
+                subtitle: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      Text(
+                        'Menu: ',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold, // Make the text bold
+                        ),
+                      ),
+                      SizedBox(
+                        width: 4,
+                      ), // Add spacing between "Menu:" and food names
+
+                      for (int i = 0; i < menuData[index]['lunch'].length; i++)
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 4), // Decrease horizontal padding
+                          child: Text(
+                            '${capitalize(menuData[index]['lunch'][i]['food_name'])}${i != menuData[index]['lunch'].length - 1 ? ',' : ''}',
+                            style: TextStyle(
+                              fontSize: 12, // Set smaller font size
                             ),
                           ),
-                          Divider(),
-                        ],
-                      ),
+                        ),
+                      SizedBox(
+                        width: 4,
+                      ), // Add spacing between food names and menu price
+                      // Text(
+                      //   '(${menuData[index]['lunch']['menu_price_lunch']?.toString() ?? 'N/A'})', // Use null-aware operator
+                      //   style: TextStyle(
+                      //     fontSize: 12, // Set smaller font size
+                      //   ),
+                      // ),
+                    ],
+                  ),
+                ),
+              ),
+              ListTile(
+                dense: true, // Reduce vertical space
+                contentPadding: EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    bottom: 4), // Decrease vertical padding
+                title: Row(
+                  children: [
+                    Checkbox(
+                      value: dinnerCheckState[menuData[index]['date']] ?? false,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          dinnerCheckState[menuData[index]['date']] = value!;
+                        });
+                      },
+                    ),
+                    SizedBox(width: 4), // Decrease horizontal space
+                    Text(
+                      'Dinner:',
+                      style: TextStyle(fontSize: 14), // Set smaller font size
+                    ),
                   ],
-                );
-              },
-            ),
+                ),
+                subtitle: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      for (var item in menuData[index]['dinner'])
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 4), // Decrease horizontal padding
+                          child: Text(
+                            item['food_name'],
+                            style: TextStyle(
+                                fontSize: 12), // Set smaller font size
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 4), // Decrease vertical space between rows
+            ],
+          );
+        },
+      ),
     );
   }
-
-  Widget _buildQuantityCounter(String mealType, String date) {
-    int currentQuantity = mealType == 'lunch'
-        ? lunchQuantities[date] ?? quantityMin
-        : dinnerQuantities[date] ?? quantityMin;
-    return Row(
-      children: [
-        IconButton(
-          icon: Icon(Icons.remove),
-          onPressed: () {
-            setState(() {
-              if (currentQuantity > quantityMin) {
-                if (mealType == 'lunch') {
-                  lunchQuantities[date] = currentQuantity - 1;
-                } else {
-                  dinnerQuantities[date] = currentQuantity - 1;
-                }
-              }
-            });
-          },
-        ),
-        Text('Quantity: $currentQuantity'),
-        IconButton(
-          icon: Icon(Icons.add),
-          onPressed: () {
-            setState(() {
-              if (currentQuantity < quantityMax) {
-                if (mealType == 'lunch') {
-                  lunchQuantities[date] = currentQuantity + 1;
-                } else {
-                  dinnerQuantities[date] = currentQuantity + 1;
-                }
-              }
-            });
-          },
-        ),
-      ],
-    );
-  }
-
-  List<Map<String, dynamic>> _generateDateList() {
-    List<Map<String, dynamic>> dateList = [];
-    DateTime startDate = DateFormat('dd-MMM-yyyy').parse(serverDateStr);
-    DateTime endDate = startDate.add(Duration(days: orderMaxDays - 1));
-
-    while (startDate.isBefore(endDate) || startDate.isAtSameMomentAs(endDate)) {
-      String formattedDate = DateFormat('d').format(startDate);
-      String suffix = _getDaySuffix(int.parse(formattedDate));
-      formattedDate += suffix;
-      String dayName = DateFormat('EEE').format(startDate);
-      String month = DateFormat('MMMM').format(startDate);
-
-      if (dateList.isEmpty || dateList.last['month'] != month) {
-        dateList.add({'month': month, 'days': []});
-      }
-
-      dateList.last['days'].add({'date': '$month $formattedDate, $dayName'});
-
-      startDate = startDate.add(Duration(days: 1));
-    }
-
-    return dateList;
-  }
-
-  String _getDaySuffix(int day) {
-    if (day >= 11 && day <= 13) {
-      return 'th';
-    }
-    switch (day % 10) {
-      case 1:
-        return 'st';
-      case 2:
-        return 'nd';
-      case 3:
-        return 'rd';
-      default:
-        return 'th';
-    }
-  }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: OrderAuto(),
-  ));
 }

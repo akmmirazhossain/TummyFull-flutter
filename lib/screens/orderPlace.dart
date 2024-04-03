@@ -149,7 +149,8 @@ class _OrderPlaceState extends State<OrderPlace> {
                       '/screens/orderauto',
                       arguments: {
                         'menuId': widget.menuId,
-                        'date': widget.date,
+                        'daydate': '${widget.day}, ${widget.date}',
+                        'mealType': widget.mealType,
                       },
                     );
                   },
