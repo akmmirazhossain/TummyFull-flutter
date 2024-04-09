@@ -36,6 +36,7 @@ class _OrderAutoState extends State<OrderAuto> {
               'lunch': details['lunch']['items'],
               'dinner': details['dinner']['items'],
             });
+            String lunchPrice = details['lunch']['menu_price_lunch'];
             // Initialize checkbox state for each menu item
             lunchCheckState[date] = false;
             dinnerCheckState[date] = false;
@@ -67,7 +68,6 @@ class _OrderAutoState extends State<OrderAuto> {
       body: ListView.builder(
         itemCount: menuData.length,
         itemBuilder: (context, index) {
-          //print(menuData[index]['lunch']['menu_price_lunch'].toString());
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -84,7 +84,6 @@ class _OrderAutoState extends State<OrderAuto> {
                   ),
                 ),
               ),
-
               ListTile(
                 dense: true, // Reduce vertical space
                 contentPadding: EdgeInsets.only(
@@ -121,7 +120,6 @@ class _OrderAutoState extends State<OrderAuto> {
                       SizedBox(
                         width: 4,
                       ), // Add spacing between "Menu:" and food names
-
                       for (int i = 0; i < menuData[index]['lunch'].length; i++)
                         Padding(
                           padding: EdgeInsets.symmetric(
@@ -135,13 +133,13 @@ class _OrderAutoState extends State<OrderAuto> {
                         ),
                       SizedBox(
                         width: 4,
-                      ), // Add spacing between food names and menu price
-                      // Text(
-                      //   '(${menuData[index]['lunch']['menu_price_lunch']?.toString() ?? 'N/A'})', // Use null-aware operator
-                      //   style: TextStyle(
-                      //     fontSize: 12, // Set smaller font size
-                      //   ),
-                      // ),
+                      ),
+                      Text(
+                        menuData[index]['lunch_price'].toString(),
+                        style: TextStyle(
+                          fontSize: 12,
+                        ),
+                      ),
                     ],
                   ),
                 ),
