@@ -31,7 +31,7 @@ class _MenuCompState extends State<MenuComp> {
     await Future.delayed(Duration(seconds: 1));
 
     final response =
-        await http.get(Uri.parse('http://192.168.0.216:8000/api/menu'));
+        await http.get(Uri.parse('http://192.168.0.216/tf-lara/public/api/menu'));
 
     if (response.statusCode == 200) {
       setState(() {
@@ -45,7 +45,7 @@ class _MenuCompState extends State<MenuComp> {
 
   Future<void> fetchSetting() async {
     final response =
-        await http.get(Uri.parse('http://192.168.0.216:8000/api/setting'));
+        await http.get(Uri.parse('http://192.168.0.216/tf-lara/public/api/setting'));
 
     if (response.statusCode == 200) {
       setState(() {
@@ -195,7 +195,7 @@ class _MenuCompState extends State<MenuComp> {
                       children: meals.map<Widget>((meal) {
                         return meal['food_image'].isNotEmpty
                             ? Image.network(
-                                'http://192.168.0.216:8000/assets/images/${meal['food_image']}',
+                                'http://192.168.0.216/tf-lara/public/assets/images/${meal['food_image']}',
                                 height: 100,
                                 width: 100,
                               )

@@ -43,7 +43,7 @@
 
 //   Future<void> fetchData() async {
 //     final response =
-//         await http.get(Uri.parse('http://192.168.0.216:8000/api/meals'));
+//         await http.get(Uri.parse('http://192.168.0.216/tf-lara/public/api/meals'));
 
 //     if (response.statusCode == 200) {
 //       setState(() {
@@ -56,7 +56,7 @@
 
 //   Future<void> fetchSetting() async {
 //     final response =
-//         await http.get(Uri.parse('http://192.168.0.216:8000/api/settings'));
+//         await http.get(Uri.parse('http://192.168.0.216/tf-lara/public/api/settings'));
 
 //     if (response.statusCode == 200) {
 //       setState(() {
@@ -207,7 +207,7 @@
 //                       children: meals.map<Widget>((meal) {
 //                         return meal['food_image'].isNotEmpty
 //                             ? Image.network(
-//                                 'http://192.168.0.216:8000/assets/images/${meal['food_image']}',
+//                                 'http://192.168.0.216/tf-lara/public/assets/images/${meal['food_image']}',
 //                                 height: 100,
 //                                 width: 100,
 //                               )

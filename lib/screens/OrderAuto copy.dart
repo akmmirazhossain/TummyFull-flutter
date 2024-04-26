@@ -52,7 +52,7 @@ class _OrderAutoState extends State<OrderAuto> {
 
   Future<void> fetchData() async {
     final response =
-        await http.get(Uri.parse('http://192.168.0.216:8000/api/setting'));
+        await http.get(Uri.parse('http://192.168.0.216/tf-lara/public/api/setting'));
     if (response.statusCode == 200) {
       Map<String, dynamic> data = jsonDecode(response.body);
       setState(() {

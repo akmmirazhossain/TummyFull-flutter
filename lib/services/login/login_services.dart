@@ -27,7 +27,7 @@ class OTPServices {
       // Send OTP request
 
       try {
-        const String apiUrl = 'http://192.168.0.216:8000/api/send-otp';
+        const String apiUrl = 'http://192.168.0.216/tf-lara/public/api/send-otp';
         final response = await http.post(
           Uri.parse(apiUrl),
           body: {'phoneNumber': phoneNumber},

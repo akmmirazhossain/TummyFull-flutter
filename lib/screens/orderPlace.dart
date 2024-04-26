@@ -36,8 +36,8 @@ class _OrderPlaceState extends State<OrderPlace> {
   }
 
   Future<Map<String, dynamic>> fetchMenuData(int menuId) async {
-    final response =
-        await http.get(Uri.parse('http://192.168.0.216:8000/api/menu/$menuId'));
+    final response = await http
+        .get(Uri.parse('http://192.168.0.216/tf-lara/public/api/menu/$menuId'));
     if (response.statusCode == 200) {
       return json.decode(response.body);
     } else {
@@ -46,8 +46,8 @@ class _OrderPlaceState extends State<OrderPlace> {
   }
 
   Future<Map<String, dynamic>> fetchSettingData() async {
-    final response =
-        await http.get(Uri.parse('http://192.168.0.216:8000/api/setting'));
+    final response = await http
+        .get(Uri.parse('http://192.168.0.216/tf-lara/public/api/setting'));
     if (response.statusCode == 200) {
       return json.decode(response.body);
     } else {
@@ -100,7 +100,7 @@ class _OrderPlaceState extends State<OrderPlace> {
                         child: Column(
                           children: [
                             Image.network(
-                              'http://192.168.0.216:8000/assets/images/${item['food_image']}',
+                              'http://192.168.0.216/tf-lara/public/assets/images/${item['food_image']}',
                               height: 100,
                               width: 100,
                             ),
@@ -148,9 +148,11 @@ class _OrderPlaceState extends State<OrderPlace> {
                       context,
                       '/screens/orderauto',
                       arguments: {
+                        'checked': 'yes',
                         'menuId': widget.menuId,
                         'daydate': '${widget.day}, ${widget.date}',
                         'mealType': widget.mealType,
+                        'price': widget.mealType,
                       },
                     );
                   },

@@ -61,7 +61,7 @@ class _MenuPageState extends State<MenuPage> {
 
   Future<void> fetchData() async {
     final response =
-        await http.get(Uri.parse('http://192.168.0.216:8000/api/orderauto'));
+        await http.get(Uri.parse('http://192.168.0.216/tf-lara/public/api/orderauto'));
     if (response.statusCode == 200) {
       final List<dynamic> jsonList = json.decode(response.body);
       setState(() {

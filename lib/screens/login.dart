@@ -127,7 +127,7 @@ class _LoginState extends State<Login> {
   void _verifyPhoneNumber() async {
     if (_validatePhoneNumber()) {
       final String phoneNumber = _phoneNumberController.text;
-      final String apiUrl = 'http://192.168.0.216:8000/api/send-otp';
+      final String apiUrl = 'http://192.168.0.216/tf-lara/public/api/send-otp';
 
       final response = await http.post(
         Uri.parse(apiUrl),
@@ -168,7 +168,7 @@ class _LoginState extends State<Login> {
   void _resendOtp() async {
     final String phoneNumber = _phoneNumberController.text;
     final String apiUrl =
-        'http://192.168.0.216:8000/api/send-otp'; // Replace with your actual API URL
+        'http://192.168.0.216/tf-lara/public/api/send-otp'; // Replace with your actual API URL
 
     print('Resending OTP...');
 
@@ -224,7 +224,7 @@ class _LoginState extends State<Login> {
     if (_validateOTP()) {
       final String otp = _otpController.text;
       final String phoneNumber = _phoneNumberController.text;
-      final String apiUrl = 'http://192.168.0.216:8000/api/verify-otp';
+      final String apiUrl = 'http://192.168.0.216/tf-lara/public/api/verify-otp';
 
       final response = await http.post(
         Uri.parse(apiUrl),

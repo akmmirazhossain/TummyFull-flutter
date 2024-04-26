@@ -22,7 +22,7 @@ class _OrderAutoState extends State<OrderAuto> {
   }
 
   Future<void> fetchData() async {
-    final String apiUrl = 'http://192.168.0.216:8000/api/orderauto';
+    final String apiUrl = 'http://192.168.0.216/tf-lara/public/api/orderauto';
 
     try {
       final response = await http.get(Uri.parse(apiUrl));
@@ -32,11 +32,14 @@ class _OrderAutoState extends State<OrderAuto> {
           data.forEach((date, details) {
             menuData.add({
               'date': date,
-              'day': details['day'],
-              'lunch': details['lunch']['items'],
+              'daydate': details['daydate'],
+              'lunch': details['lunch']?['items'],
               'dinner': details['dinner']['items'],
+              'lunch_price': details['lunch']?['menu_price_lunch'] ?? 0,
+              'dinner_price': details['dinner']['menu_price_dinner'],
             });
-            String lunchPrice = details['lunch']['menu_price_lunch'];
+            // String lunchPrice = details['lunch']['menu_price_lunch'];
+
             // Initialize checkbox state for each menu item
             lunchCheckState[date] = false;
             dinnerCheckState[date] = false;
@@ -76,74 +79,89 @@ class _OrderAutoState extends State<OrderAuto> {
                     vertical: 4), // Adjust vertical spacing here
                 child: ListTile(
                   title: Text(
-                    '${menuData[index]['day'][0].toUpperCase()}${menuData[index]['day'].substring(1)}, ${menuData[index]['date']}',
-                    style: TextStyle(fontSize: 16), // Set smaller font size
+                    menuData[index][
+                        'daydate'], // Use null-aware operator to handle null value
+                    style: TextStyle(fontSize: 16),
                   ),
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: 16,
                   ),
                 ),
               ),
-              ListTile(
-                dense: true, // Reduce vertical space
-                contentPadding: EdgeInsets.only(
-                    left: 16,
-                    right: 16,
-                    bottom: 0), // Decrease vertical padding
-                title: Row(
-                  children: [
-                    Checkbox(
-                      value: lunchCheckState[menuData[index]['date']] ?? false,
-                      onChanged: (bool? value) {
-                        setState(() {
-                          lunchCheckState[menuData[index]['date']] = value!;
-                        });
-                      },
-                    ),
-                    SizedBox(width: 4), // Decrease horizontal space
-                    Text(
-                      'Lunch:',
-                      style: TextStyle(fontSize: 14), // Set smaller font size
-                    ),
-                  ],
-                ),
-                subtitle: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
+              if (menuData[index]['lunch'] !=
+                  null) // Check if lunch data is not null
+                ListTile(
+                  dense: true, // Reduce vertical space
+                  contentPadding: EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      bottom: 0), // Decrease vertical padding
+                  title: Row(
                     children: [
-                      Text(
-                        'Menu: ',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold, // Make the text bold
-                        ),
+                      Checkbox(
+                        value: args != null &&
+                            args['daydate'] == menuData[index]['daydate'] &&
+                            args['mealType'] == 'Lunch' &&
+                            args['checked'] == 'yes',
+                        onChanged: (bool? value) {
+                          setState(() {
+                            // Check if args is not null before accessing its elements
+                            if (args != null) {
+                              // Update the value of args['checked'] based on the value parameter
+                              args['checked'] = value == true ? 'yes' : 'no';
+                              args['daydate'] = menuData[index]['daydate'];
+                            }
+                          });
+                        },
                       ),
-                      SizedBox(
-                        width: 4,
-                      ), // Add spacing between "Menu:" and food names
-                      for (int i = 0; i < menuData[index]['lunch'].length; i++)
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 4), // Decrease horizontal padding
-                          child: Text(
-                            '${capitalize(menuData[index]['lunch'][i]['food_name'])}${i != menuData[index]['lunch'].length - 1 ? ',' : ''}',
-                            style: TextStyle(
-                              fontSize: 12, // Set smaller font size
-                            ),
-                          ),
-                        ),
-                      SizedBox(
-                        width: 4,
-                      ),
+
+                      SizedBox(width: 4), // Decrease horizontal space
                       Text(
-                        menuData[index]['lunch_price'].toString(),
-                        style: TextStyle(
-                          fontSize: 12,
-                        ),
+                        'Lunch:',
+                        style: TextStyle(fontSize: 14), // Set smaller font size
                       ),
                     ],
                   ),
+                  subtitle: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        Text(
+                          'Menu: ',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold, // Make the text bold
+                          ),
+                        ),
+                        SizedBox(
+                          width: 4,
+                        ), // Add spacing between "Menu:" and food names
+                        for (int i = 0;
+                            i < menuData[index]['lunch'].length;
+                            i++)
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 4), // Decrease horizontal padding
+                            child: Text(
+                              '${capitalize(menuData[index]['lunch'][i]['food_name'])}${i != menuData[index]['lunch'].length - 1 ? ',' : ''}',
+                              style: TextStyle(
+                                fontSize: 12, // Set smaller font size
+                              ),
+                            ),
+                          ),
+                        SizedBox(
+                          width: 4,
+                        ),
+                        Text(
+                          menuData[index]['lunch_price'].toString(),
+                          style: TextStyle(
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+
               ListTile(
                 dense: true, // Reduce vertical space
                 contentPadding: EdgeInsets.only(
@@ -171,6 +189,15 @@ class _OrderAutoState extends State<OrderAuto> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
+                      Text(
+                        'Menu: ',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold, // Make the text bold
+                        ),
+                      ),
+                      SizedBox(
+                        width: 4,
+                      ),
                       for (var item in menuData[index]['dinner'])
                         Padding(
                           padding: EdgeInsets.symmetric(
@@ -181,6 +208,12 @@ class _OrderAutoState extends State<OrderAuto> {
                                 fontSize: 12), // Set smaller font size
                           ),
                         ),
+                      Text(
+                        menuData[index]['dinner_price'].toString(),
+                        style: TextStyle(
+                          fontSize: 12,
+                        ),
+                      ),
                     ],
                   ),
                 ),
