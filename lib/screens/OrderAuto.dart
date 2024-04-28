@@ -12,6 +12,8 @@ class _OrderAutoState extends State<OrderAuto> {
   List<dynamic> menuData = [];
   Map<String, bool> lunchCheckState = {};
   Map<String, bool> dinnerCheckState = {};
+  List<Map<String, dynamic>> lunchDataList = [];
+  Map<int, int> menuIdIndexMap = {};
 
   String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
 
@@ -19,6 +21,26 @@ class _OrderAutoState extends State<OrderAuto> {
   void initState() {
     super.initState();
     fetchData();
+    initializeLunchDataList();
+  }
+
+  void initializeLunchDataList() {
+    final Map<String, dynamic>? args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
+    if (args != null) {
+      for (var data in menuData) {
+        int menuId = data['menu_id_lunch'];
+        Map<String, dynamic> lunchData = {
+          'menuId': args['menuId'],
+          'checked': args['checked'],
+          'daydate': args['daydate'],
+          'price': args['price'],
+        };
+        lunchDataList.add(lunchData);
+        menuIdIndexMap[menuId] = lunchDataList.length - 1;
+      }
+    }
   }
 
   Future<void> fetchData() async {
@@ -34,11 +56,12 @@ class _OrderAutoState extends State<OrderAuto> {
               'date': date,
               'daydate': details['daydate'],
               'lunch': details['lunch']?['items'],
+              'menu_id_lunch': details['lunch']['menu_id_lunch'],
+              'menu_price_lunch': details['lunch']['menu_price_lunch'],
               'dinner': details['dinner']['items'],
-              'lunch_price': details['lunch']?['menu_price_lunch'] ?? 0,
-              'dinner_price': details['dinner']['menu_price_dinner'],
+              'menu_id_dinner': details['dinner']['menu_id_dinner'],
+              'menu_price_dinner': details['menu_price_dinner'],
             });
-            // String lunchPrice = details['lunch']['menu_price_lunch'];
 
             // Initialize checkbox state for each menu item
             lunchCheckState[date] = false;
@@ -60,9 +83,9 @@ class _OrderAutoState extends State<OrderAuto> {
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
     // Print the arguments
-    if (args != null) {
-      print('Arguments: $args');
-    }
+    // if (args != null) {
+    //   print('Arguments: $args');
+    // }
 
     return Scaffold(
       appBar: AppBar(
@@ -99,17 +122,56 @@ class _OrderAutoState extends State<OrderAuto> {
                   title: Row(
                     children: [
                       Checkbox(
-                        value: args != null &&
-                            args['daydate'] == menuData[index]['daydate'] &&
-                            args['mealType'] == 'Lunch' &&
-                            args['checked'] == 'yes',
+                        value: (args != null &&
+                                args['menuId'] ==
+                                    menuData[index]['menu_id_lunch'] &&
+                                args['daydate'] == menuData[index]['daydate'] &&
+                                args['mealType'] == 'Lunch' &&
+                                args['checked'] == 'yes') ||
+                            (menuIdIndexMap.containsKey(
+                                    menuData[index]['menu_id_lunch']) &&
+                                lunchDataList[menuIdIndexMap[menuData[index]
+                                        ['menu_id_lunch']]!]['checked'] ==
+                                    'yes'),
                         onChanged: (bool? value) {
                           setState(() {
-                            // Check if args is not null before accessing its elements
                             if (args != null) {
-                              // Update the value of args['checked'] based on the value parameter
+                              int menuId = menuData[index]
+                                  ['menu_id_lunch']; // Define menuId here
+                              args['menuId'] = menuId;
                               args['checked'] = value == true ? 'yes' : 'no';
                               args['daydate'] = menuData[index]['daydate'];
+                              args['price'] =
+                                  menuData[index]['menu_price_lunch'];
+
+                              // If menu ID exists, update its corresponding entry in lunchDataList
+                              if (menuIdIndexMap.containsKey(menuId)) {
+                                int dataIndex = menuIdIndexMap[menuId]!;
+                                lunchDataList[dataIndex]['checked'] =
+                                    args['checked'];
+                                lunchDataList[dataIndex]['daydate'] =
+                                    args['daydate'];
+                              } else {
+                                // If menu ID is not present, add it to lunchDataList and update menuIdIndexMap
+                                Map<String, dynamic> lunchData = {
+                                  'menuId': args['menuId'],
+                                  'checked': args['checked'],
+                                  'daydate': args['daydate'],
+                                  'price': args['price'],
+                                };
+                                lunchDataList.add(lunchData);
+                                menuIdIndexMap[menuId] =
+                                    lunchDataList.length - 1;
+                              }
+
+                              print('----START----');
+                              for (var data in lunchDataList) {
+                                print('Menu ID: ${data['menuId']}');
+                                print('Checked: ${data['checked']}');
+                                print('Day Date: ${data['daydate']}');
+                                print('Price: ${data['price']}');
+                              }
+                              print('xxxxENDxxxx \n');
                             }
                           });
                         },
@@ -152,7 +214,7 @@ class _OrderAutoState extends State<OrderAuto> {
                           width: 4,
                         ),
                         Text(
-                          menuData[index]['lunch_price'].toString(),
+                          menuData[index]['menu_price_lunch'].toString(),
                           style: TextStyle(
                             fontSize: 12,
                           ),
@@ -171,10 +233,53 @@ class _OrderAutoState extends State<OrderAuto> {
                 title: Row(
                   children: [
                     Checkbox(
-                      value: dinnerCheckState[menuData[index]['date']] ?? false,
+                      value: args != null &&
+                          args['menuId'] == menuData[index]['menu_id_dinner'] &&
+                          args['daydate'] == menuData[index]['daydate'] &&
+                          args['mealType'] == 'Dinner' &&
+                          args['checked'] == 'yes',
                       onChanged: (bool? value) {
                         setState(() {
-                          dinnerCheckState[menuData[index]['date']] = value!;
+                          // Check if args is not null before accessing its elements
+                          if (args != null) {
+                            int menuId = menuData[index]['menu_id_dinner'];
+                            args['menuId'] = menuId;
+                            args['checked'] = value == true ? 'yes' : 'no';
+                            args['daydate'] = menuData[index]['daydate'];
+                            args['price'] =
+                                menuData[index]['menu_price_dinner'];
+
+                            if (menuIdIndexMap.containsKey(menuId)) {
+                              // If menu ID exists in the map, update its corresponding entry in lunchDataList
+                              int dataIndex = menuIdIndexMap[menuId]!;
+                              lunchDataList[dataIndex]['checked'] =
+                                  args['checked'];
+                              lunchDataList[dataIndex]['daydate'] =
+                                  args['daydate'];
+                              lunchDataList[dataIndex]['price'] = args['price'];
+                            } else {
+                              // If menu ID is not present, add it to lunchDataList and update menuIdIndexMap
+                              Map<String, dynamic> lunchData = {
+                                'menuId': args['menuId'],
+                                'checked': args['checked'],
+                                'daydate': args['daydate'],
+                                'price': args['price'],
+                              };
+                              lunchDataList.add(lunchData);
+                              menuIdIndexMap[menuId] = lunchDataList.length -
+                                  1; // Store the index of the added menu ID
+                            }
+
+                            // Print the updated lunchDataList
+                            print('----START----');
+                            for (var data in lunchDataList) {
+                              print('Menu ID: ${data['menuId']}');
+                              print('Checked: ${data['checked']}');
+                              print('Day Date: ${data['daydate']}');
+                              print('Price: ${data['price']}');
+                            }
+                            print('xxxxENDxxxx \n');
+                          }
                         });
                       },
                     ),
@@ -209,7 +314,7 @@ class _OrderAutoState extends State<OrderAuto> {
                           ),
                         ),
                       Text(
-                        menuData[index]['dinner_price'].toString(),
+                        menuData[index]['menu_price_dinner'].toString(),
                         style: TextStyle(
                           fontSize: 12,
                         ),

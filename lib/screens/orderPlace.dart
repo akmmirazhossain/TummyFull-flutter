@@ -148,11 +148,12 @@ class _OrderPlaceState extends State<OrderPlace> {
                       context,
                       '/screens/orderauto',
                       arguments: {
-                        'checked': 'yes',
                         'menuId': widget.menuId,
+                        'checked': 'yes',
                         'daydate': '${widget.day}, ${widget.date}',
                         'mealType': widget.mealType,
-                        'price': widget.mealType,
+                        'price':
+                            '${widget.mealType == 'Lunch' ? menuData['menu_price_lunch'] ?? 'N/A' : menuData['menu_price_dinner'] ?? 'N/A'}'
                       },
                     );
                   },
