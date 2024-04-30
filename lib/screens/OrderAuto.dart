@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'dart:convert';
 
 class OrderAuto extends StatefulWidget {
   @override
@@ -12,7 +13,7 @@ class _OrderAutoState extends State<OrderAuto> {
   List<dynamic> menuData = [];
   Map<String, bool> lunchCheckState = {};
   Map<String, bool> dinnerCheckState = {};
-  List<Map<String, dynamic>> lunchDataList = [];
+  List<Map<String, dynamic>> mealDataList = [];
   Map<int, int> menuIdIndexMap = {};
 
   String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
@@ -21,27 +22,27 @@ class _OrderAutoState extends State<OrderAuto> {
   void initState() {
     super.initState();
     fetchData();
-    initializeLunchDataList();
+    // initializeLunchDataList();
   }
 
-  void initializeLunchDataList() {
-    final Map<String, dynamic>? args =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+  // void initializeLunchDataList() {
+  //   final Map<String, dynamic>? args =
+  //       ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
-    if (args != null) {
-      for (var data in menuData) {
-        int menuId = data['menu_id_lunch'];
-        Map<String, dynamic> lunchData = {
-          'menuId': args['menuId'],
-          'checked': args['checked'],
-          'daydate': args['daydate'],
-          'price': args['price'],
-        };
-        lunchDataList.add(lunchData);
-        menuIdIndexMap[menuId] = lunchDataList.length - 1;
-      }
-    }
-  }
+  //   if (args != null) {
+  //     for (var data in menuData) {
+  //       int menuId = data['menu_id_lunch'];
+  //       Map<String, dynamic> lunchData = {
+  //         'menuId': args['menuId'],
+  //         'checked': args['checked'],
+  //         'daydate': args['daydate'],
+  //         'price': args['price'],
+  //       };
+  //       lunchDataList.add(lunchData);
+  //       menuIdIndexMap[menuId] = lunchDataList.length - 1;
+  //     }
+  //   }
+  // }
 
   Future<void> fetchData() async {
     final String apiUrl = 'http://192.168.0.216/tf-lara/public/api/orderauto';
@@ -122,60 +123,99 @@ class _OrderAutoState extends State<OrderAuto> {
                   title: Row(
                     children: [
                       Checkbox(
-                        value: (args != null &&
-                                args['menuId'] ==
-                                    menuData[index]['menu_id_lunch'] &&
-                                args['daydate'] == menuData[index]['daydate'] &&
-                                args['mealType'] == 'Lunch' &&
-                                args['checked'] == 'yes') ||
-                            (menuIdIndexMap.containsKey(
-                                    menuData[index]['menu_id_lunch']) &&
-                                lunchDataList[menuIdIndexMap[menuData[index]
-                                        ['menu_id_lunch']]!]['checked'] ==
-                                    'yes'),
-                        onChanged: (bool? value) {
-                          setState(() {
-                            if (args != null) {
-                              int menuId = menuData[index]
-                                  ['menu_id_lunch']; // Define menuId here
-                              args['menuId'] = menuId;
-                              args['checked'] = value == true ? 'yes' : 'no';
-                              args['daydate'] = menuData[index]['daydate'];
-                              args['price'] =
-                                  menuData[index]['menu_price_lunch'];
+                          value: ((args != null &&
+                                          //IF MATCHES WITH THE ARGS DATA
+                                          args['checked'] == 'yes') &&
+                                      args['mealType'] == 'Lunch' &&
+                                      args['daydate'] ==
+                                          menuData[index]['daydate'] ||
 
-                              // If menu ID exists, update its corresponding entry in lunchDataList
-                              if (menuIdIndexMap.containsKey(menuId)) {
-                                int dataIndex = menuIdIndexMap[menuId]!;
-                                lunchDataList[dataIndex]['checked'] =
-                                    args['checked'];
-                                lunchDataList[dataIndex]['daydate'] =
-                                    args['daydate'];
-                              } else {
-                                // If menu ID is not present, add it to lunchDataList and update menuIdIndexMap
-                                Map<String, dynamic> lunchData = {
-                                  'menuId': args['menuId'],
-                                  'checked': args['checked'],
-                                  'daydate': args['daydate'],
-                                  'price': args['price'],
-                                };
-                                lunchDataList.add(lunchData);
-                                menuIdIndexMap[menuId] =
-                                    lunchDataList.length - 1;
-                              }
+                                  //CHECK IF THE DATA IS PRESENT IN THE LUNCH DATA LIST
+                                  mealDataList.any((data) =>
+                                      data['checked'] == 'yes' &&
+                                      data['mealType'] == 'Lunch' &&
+                                      data['daydate'] ==
+                                          menuData[index]['daydate']))
+                              ? (() {
+                                  //ADD UP THE ARGS DATA FROM THE PREVIOUS PAGE
+                                  if (args != null) {
+                                    String daydate = args['daydate'];
+                                    int menuId = args['menuId'];
+                                    bool dataExists = mealDataList.any((data) =>
+                                        data['checked'] == 'yes' &&
+                                        data['mealType'] == 'Lunch' &&
+                                        data['daydate'] == daydate);
 
-                              print('----START----');
-                              for (var data in lunchDataList) {
-                                print('Menu ID: ${data['menuId']}');
-                                print('Checked: ${data['checked']}');
-                                print('Day Date: ${data['daydate']}');
-                                print('Price: ${data['price']}');
+                                    if (!dataExists) {
+                                      // Create the meal data map
+                                      Map<String, dynamic> mealData = {
+                                        'menuId': menuId,
+                                        'mealType': 'Lunch',
+                                        'daydate': daydate,
+                                        'price': args['price'],
+                                      };
+
+                                      // Add the new meal data to mealDataList
+                                      mealDataList.add(mealData);
+
+                                      // Print the added meal data
+                                      print(
+                                          '1) CHECKBOX - New meal data added:');
+                                      print(mealData);
+                                    }
+                                  }
+
+                                  return true;
+                                })()
+                              : false,
+                          onChanged: (bool? value) {
+                            setState(() {
+                              if (args != null) {
+                                // Assign variables
+                                int menuId = menuData[index]['menu_id_lunch'];
+                                String daydate = menuData[index]['daydate'];
+
+                                args['menuId'] = menuId;
+                                args['mealType'] = "Lunch";
+                                args['daydate'] = daydate;
+                                args['price'] =
+                                    menuData[index]['menu_price_lunch'];
+
+                                // Find the index of the existing meal data in mealDataList
+                                final existingMealIndex =
+                                    mealDataList.indexWhere((meal) =>
+                                        meal['daydate'] == daydate &&
+                                        meal['mealType'] == 'Lunch');
+
+                                if (existingMealIndex != -1) {
+                                  // Remove the existing meal data from the list
+                                  print("2) Removing existing lunch data...");
+                                  mealDataList.removeAt(existingMealIndex);
+                                  // Print the updated mealDataList
+                                  print("3) Updated mealDataList:");
+                                  mealDataList.forEach((meal) {
+                                    print(meal);
+                                  });
+                                } else {
+                                  // Create the meal data map
+                                  Map<String, dynamic> newMealData = {
+                                    'menuId': menuId,
+                                    'mealType': 'Lunch',
+                                    'daydate': daydate,
+                                    'price': args['price'],
+                                    // Add other meal data fields as needed
+                                  };
+
+                                  // Add the new meal data to the mealDataList
+                                  mealDataList.add(newMealData);
+
+                                  // Print the newly added meal data
+                                  print("4) New lunch data added:");
+                                  print(newMealData);
+                                }
                               }
-                              print('xxxxENDxxxx \n');
-                            }
-                          });
-                        },
-                      ),
+                            });
+                          }),
 
                       SizedBox(width: 4), // Decrease horizontal space
                       Text(
@@ -252,11 +292,11 @@ class _OrderAutoState extends State<OrderAuto> {
                             if (menuIdIndexMap.containsKey(menuId)) {
                               // If menu ID exists in the map, update its corresponding entry in lunchDataList
                               int dataIndex = menuIdIndexMap[menuId]!;
-                              lunchDataList[dataIndex]['checked'] =
+                              mealDataList[dataIndex]['checked'] =
                                   args['checked'];
-                              lunchDataList[dataIndex]['daydate'] =
+                              mealDataList[dataIndex]['daydate'] =
                                   args['daydate'];
-                              lunchDataList[dataIndex]['price'] = args['price'];
+                              mealDataList[dataIndex]['price'] = args['price'];
                             } else {
                               // If menu ID is not present, add it to lunchDataList and update menuIdIndexMap
                               Map<String, dynamic> lunchData = {
@@ -265,14 +305,14 @@ class _OrderAutoState extends State<OrderAuto> {
                                 'daydate': args['daydate'],
                                 'price': args['price'],
                               };
-                              lunchDataList.add(lunchData);
-                              menuIdIndexMap[menuId] = lunchDataList.length -
+                              mealDataList.add(lunchData);
+                              menuIdIndexMap[menuId] = mealDataList.length -
                                   1; // Store the index of the added menu ID
                             }
 
                             // Print the updated lunchDataList
                             print('----START----');
-                            for (var data in lunchDataList) {
+                            for (var data in mealDataList) {
                               print('Menu ID: ${data['menuId']}');
                               print('Checked: ${data['checked']}');
                               print('Day Date: ${data['daydate']}');

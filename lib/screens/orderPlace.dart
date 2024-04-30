@@ -152,8 +152,9 @@ class _OrderPlaceState extends State<OrderPlace> {
                         'checked': 'yes',
                         'daydate': '${widget.day}, ${widget.date}',
                         'mealType': widget.mealType,
-                        'price':
-                            '${widget.mealType == 'Lunch' ? menuData['menu_price_lunch'] ?? 'N/A' : menuData['menu_price_dinner'] ?? 'N/A'}'
+                        'price': widget.mealType == 'Lunch'
+                            ? (menuData['menu_price_lunch'] as int? ?? 0)
+                            : (menuData['menu_price_dinner'] as int? ?? 0),
                       },
                     );
                   },
