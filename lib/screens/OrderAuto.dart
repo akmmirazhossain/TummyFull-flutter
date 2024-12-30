@@ -22,27 +22,7 @@ class _OrderAutoState extends State<OrderAuto> {
   void initState() {
     super.initState();
     fetchData();
-    // initializeLunchDataList();
   }
-
-  // void initializeLunchDataList() {
-  //   final Map<String, dynamic>? args =
-  //       ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-
-  //   if (args != null) {
-  //     for (var data in menuData) {
-  //       int menuId = data['menu_id_lunch'];
-  //       Map<String, dynamic> lunchData = {
-  //         'menuId': args['menuId'],
-  //         'checked': args['checked'],
-  //         'daydate': args['daydate'],
-  //         'price': args['price'],
-  //       };
-  //       lunchDataList.add(lunchData);
-  //       menuIdIndexMap[menuId] = lunchDataList.length - 1;
-  //     }
-  //   }
-  // }
 
   Future<void> fetchData() async {
     final String apiUrl = 'http://192.168.0.216/tf-lara/public/api/orderauto';
@@ -83,10 +63,27 @@ class _OrderAutoState extends State<OrderAuto> {
     final Map<String, dynamic>? args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
-    // Print the arguments
-    // if (args != null) {
-    //   print('Arguments: $args');
-    // }
+    if (args != null) {
+      // Check if the meal data is already in the list
+      bool isMealDataExists = mealDataList.any((data) =>
+          data['menuId'] == args['menuId'] &&
+          data['mealType'] == args['mealType'] &&
+          data['daydate'] == args['daydate']);
+
+      if (!isMealDataExists) {
+        // Print debug information
+        print('LINE: 90) Adding meal data to mealDataList');
+        mealDataList.add({
+          'menuId': args['menuId'],
+          'checked': args['checked'],
+          'mealType': args['mealType'],
+          'daydate': args['daydate'],
+          'price': args['price'],
+        });
+        // Print the updated mealDataList
+        print(mealDataList);
+      }
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -138,32 +135,32 @@ class _OrderAutoState extends State<OrderAuto> {
                                           menuData[index]['daydate']))
                               ? (() {
                                   //ADD UP THE ARGS DATA FROM THE PREVIOUS PAGE
-                                  if (args != null) {
-                                    String daydate = args['daydate'];
-                                    int menuId = args['menuId'];
-                                    bool dataExists = mealDataList.any((data) =>
-                                        data['checked'] == 'yes' &&
-                                        data['mealType'] == 'Lunch' &&
-                                        data['daydate'] == daydate);
+                                  // if (args != null) {
+                                  //   String daydate = args['daydate'];
+                                  //   int menuId = args['menuId'];
+                                  //   bool dataExists = mealDataList.any((data) =>
+                                  //       data['checked'] == 'yes' &&
+                                  //       data['mealType'] == 'Lunch' &&
+                                  //       data['daydate'] == daydate);
 
-                                    if (!dataExists) {
-                                      // Create the meal data map
-                                      Map<String, dynamic> mealData = {
-                                        'menuId': menuId,
-                                        'mealType': 'Lunch',
-                                        'daydate': daydate,
-                                        'price': args['price'],
-                                      };
+                                  //   if (!dataExists) {
+                                  //     // Create the meal data map
+                                  //     Map<String, dynamic> mealData = {
+                                  //       'menuId': menuId,
+                                  //       'mealType': 'Lunch',
+                                  //       'daydate': daydate,
+                                  //       'price': args['price'],
+                                  //     };
 
-                                      // Add the new meal data to mealDataList
-                                      mealDataList.add(mealData);
+                                  //     // Add the new meal data to mealDataList
+                                  //     mealDataList.add(mealData);
 
-                                      // Print the added meal data
-                                      print(
-                                          '1) CHECKBOX - New meal data added:');
-                                      print(mealData);
-                                    }
-                                  }
+                                  //     // Print the added meal data
+                                  //     print(
+                                  //         '1) CHECKBOX - New meal data added:');
+                                  //     print(mealData);
+                                  //   }
+                                  // }
 
                                   return true;
                                 })()
@@ -188,18 +185,23 @@ class _OrderAutoState extends State<OrderAuto> {
                                         meal['mealType'] == 'Lunch');
 
                                 if (existingMealIndex != -1) {
-                                  // Remove the existing meal data from the list
-                                  print("2) Removing existing lunch data...");
-                                  mealDataList.removeAt(existingMealIndex);
-                                  // Print the updated mealDataList
-                                  print("3) Updated mealDataList:");
-                                  mealDataList.forEach((meal) {
-                                    print(meal);
-                                  });
+                                  // Check the condition to remove the meal data if unchecked
+                                  if (value == false) {
+                                    print("2) Removing existing lunch data...");
+                                    print("Before removal: $mealDataList");
+                                    mealDataList.removeAt(existingMealIndex);
+                                    print("After removal: $mealDataList");
+                                    print("===============");
+                                  } else {
+                                    // If checked, update the checked status in mealDataList
+                                    mealDataList[existingMealIndex]['checked'] =
+                                        'yes';
+                                  }
                                 } else {
                                   // Create the meal data map
                                   Map<String, dynamic> newMealData = {
                                     'menuId': menuId,
+                                    'checked': 'yes',
                                     'mealType': 'Lunch',
                                     'daydate': daydate,
                                     'price': args['price'],
@@ -211,7 +213,8 @@ class _OrderAutoState extends State<OrderAuto> {
 
                                   // Print the newly added meal data
                                   print("4) New lunch data added:");
-                                  print(newMealData);
+                                  print(mealDataList);
+                                  print('--------------');
                                 }
                               }
                             });
@@ -369,5 +372,7 @@ class _OrderAutoState extends State<OrderAuto> {
         },
       ),
     );
+
+    print('LAST LINE');
   }
 }

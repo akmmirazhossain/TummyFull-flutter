@@ -40,6 +40,9 @@ dependencies:
   equatable: ^2.0.3
 
   shared_preferences: ^2.0.8
+  logger: ^2.3.0
+  stack_trace: ^1.11.1
+  webview_flutter: ^4.0.1
 
 dev_dependencies:
   flutter_test:

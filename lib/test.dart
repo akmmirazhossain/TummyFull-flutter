@@ -1,52 +1,66 @@
-import 'package:flutter/material.dart';
+// import 'package:flutter/material.dart';
+// import 'package:webview_flutter/webview_flutter.dart';
 
-void main() {
-  runApp(MyApp());
-}
+// void main() {
+//   runApp(MyApp());
+// }
 
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Checkbox Example',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const CheckboxPage(), // Use 'const' keyword here
-    );
-  }
-}
+// class MyApp extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       title: 'Flutter WebView Demo',
+//       theme: ThemeData(
+//         primarySwatch: Colors.blue,
+//       ),
+//       home: HomePage(),
+//     );
+//   }
+// }
 
-class CheckboxPage extends StatefulWidget {
-  const CheckboxPage(); // Use 'const' keyword here
+// class HomePage extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text("Home Page"),
+//       ),
+//       body: Center(
+//         child: ElevatedButton(
+//           child: Text("Open Webpage"),
+//           onPressed: () {
+//             Navigator.of(context).push(MaterialPageRoute(
+//               builder: (BuildContext context) => MyWebView(
+//                 title: "DigitalOcean",
+//                 selectedUrl: "https://www.digitalocean.com",
+//               ),
+//             ));
+//           },
+//         ),
+//       ),
+//     );
+//   }
+// }
 
-  @override
-  _CheckboxPageState createState() => _CheckboxPageState();
-}
+// class MyWebView extends StatelessWidget {
+//   final String title;
+//   final String selectedUrl;
 
-class _CheckboxPageState extends State<CheckboxPage> {
-  bool isChecked = false;
+//   MyWebView({
+//     required this.title,
+//     required this.selectedUrl,
+//   });
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Checkbox Example'),
-      ),
-      body: Center(
-        child: CheckboxListTile(
-          title: Text('Check me'),
-          value: isChecked,
-          onChanged: (value) {
-            // Remove the explicit type annotation to match the expected signature
-            setState(() {
-              isChecked =
-                  value ?? false; // Ensure to handle the null case if needed
-            });
-            print('Checkbox is now $value');
-          },
-        ),
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text(title),
+//       ),
+//       body: WebView(
+//         initialUrl: selectedUrl,
+//         javascriptMode: JavascriptMode.unrestricted,
+//       ),
+//     );
+//   }
+// }
